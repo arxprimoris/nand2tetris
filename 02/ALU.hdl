@@ -1,0 +1,76 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU. Computes one of the following functions:
+ * x+y, x-y, y–x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs.
+ * Which function to compute is determined by 6 input bits 
+ * denoted zx, nx, zy, ny, f, no.
+ * The computed function's value is called "out".
+ * In addition to computing out, the ALU computes two 
+ * 1-bit outputs called zr and ng:
+ * if out == 0, zr = 1; otherwise zr = 0;
+ * If out < 0, ng = 1; otherwise ng = 0.
+ * The 6-bit combinations (zx,nx,zy,ny,f,no) and 
+ * their effect are documented in the book. 
+ */
+
+// Implementation: the ALU manipulates the x and y
+// inputs and then operates on the resulting values, 
+// as follows:
+// if (zx  == 1) sets x = 0        // 16-bit constant
+// if (nx  == 1) sets x = ~x       // bitwise "not"
+// if (zy  == 1) sets y = 0        // 16-bit constant
+// if (ny  == 1) sets y = ~y       // bitwise "not"
+// if (f   == 1) sets out = x + y  // integer 2's-complement addition
+// if (f   == 0) sets out = x & y  // bitwise And
+// if (no  == 1) sets out = ~out   // bitwise Not
+// if (out == 0) sets zr = 1
+// if (out < 0)  sets ng = 1
+
+  
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute  out = x + y (if f == 1) or out = x & y (if == 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+	// compute x input modications
+	Not(in=zx, out=nzx);
+	And16(a[0]=nzx, a[1]=nzx, a[2]=nzx, a[3]=nzx, a[4]=nzx, a[5]=nzx, a[6]=nzx, a[7]=nzx, a[8]=nzx,
+		a[9]=nzx, a[10]=nzx, a[11]=nzx, a[12]=nzx, a[13]=nzx, a[14]=nzx, a[15]=nzx, b=x, out=zerox); 
+	Xor16(a[0]=nx, a[1]=nx, a[2]=nx, a[3]=nx, a[4]=nx, a[5]=nx, a[6]=nx, a[7]=nx, a[8]=nx, a[9]=nx,
+		a[10]=nx, a[11]=nx,	a[12]=nx, a[13]=nx, a[14]=nx, a[15]=nx, b=zerox, out=modx);
+
+	// compute y input modications
+	Not(in=zy, out=nzy);
+	And16(a[0]=nzy, a[1]=nzy, a[2]=nzy, a[3]=nzy, a[4]=nzy, a[5]=nzy, a[6]=nzy, a[7]=nzy, a[8]=nzy,
+		a[9]=nzy, a[10]=nzy, a[11]=nzy, a[12]=nzy, a[13]=nzy, a[14]=nzy, a[15]=nzy, b=y, out=zeroy); 
+	Xor16(a[0]=ny, a[1]=ny, a[2]=ny, a[3]=ny, a[4]=ny, a[5]=ny, a[6]=ny, a[7]=ny, a[8]=ny, a[9]=ny,
+		a[10]=ny, a[11]=ny,	a[12]=ny, a[13]=ny, a[14]=ny, a[15]=ny, b=zeroy, out=mody);
+	
+	// compute the function output
+	And16(a=modx, b=mody, out=andxy);
+	Add16(a=modx, b=mody, out=sumxy);
+	Mux16(a=andxy, b=sumxy, sel=f, out=out0);
+	
+	// compute output negation
+	Xor16(a[0]=no, a[1]=no, a[2]=no, a[3]=no, a[4]=no, a[5]=no, a[6]=no, a[7]=no, a[8]=no, a[9]=no,
+		a[10]=no, a[11]=no,	a[12]=no, a[13]=no, a[14]=no, a[15]=no, b=out0, out=out, out=out1);
+	
+	// compute output flags
+	Zneg16(in=out1, neg=ng, zero=zr);
+}

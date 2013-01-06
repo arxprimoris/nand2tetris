@@ -1,0 +1,56 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux4Way.hdl
+
+/**
+ * 4-way demultiplexor.  
+ * {a,b,c,d} = {in,0,0,0} if sel == 00
+ *             {0,in,0,0} if sel == 01
+ *             {0,0,in,0} if sel == 10
+ *             {0,0,0,in} if sel == 11
+ */
+
+
+CHIP DMux4Way {
+
+
+    IN in, sel[2];
+
+    OUT a, b, c, d;
+
+    PARTS:
+    DMux(in=in, sel=sel[0], a=a0, b=b0);
+    DMux(in=a0, sel=sel[1], a=a, b=c);
+    DMux(in=b0, sel=sel[1], a=b, b=d);
+
+    //Not(in=sel[0], out=e0);
+    //Not(in=sel[1], out=e1);
+    //And(a=e0, b=e1, out=f0);
+    //And(a=e1, b=sel[0], out=f1);
+    //And(a=sel[1], b=e0, out=f2);
+    //And(a=sel[1], b=sel[0], out=f3);
+    //And(a=f0, b=in, out=a);
+    //And(a=f1, b=in, out=b);
+    //And(a=f2, b=in, out=c);
+    //And(a=f3, b=in, out=d);
+
+    //Nand(a=sel[1], b=sel[1], out=e0);
+    //Nand(a=sel[0], b=sel[0], out=e1);
+    //Nand(a=e0, b=e1, out=f0);
+    //Nand(a=e0, b=sel[0], out=f1);
+    //Nand(a=sel[1], b=e1, out=f2);
+    //Nand(a=sel[1], b=sel[0], out=f3);
+    //Nand(a=f0, b=f0, out=g0);
+    //Nand(a=f1, b=f1, out=g1);
+    //Nand(a=f2, b=f2, out=g2);
+    //Nand(a=f3, b=f3, out=g3);
+    //Nand(a=g0, b=in, out=h0);
+    //Nand(a=g1, b=in, out=h1);
+    //Nand(a=g2, b=in, out=h2);
+    //Nand(a=g3, b=in, out=h3);
+    //Nand(a=h0, b=h0, out=a);
+    //Nand(a=h1, b=h1, out=b);
+    //Nand(a=h2, b=h2, out=c);
+    //Nand(a=h3, b=h3, out=d);
+}

@@ -1,0 +1,46 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux.hdl
+
+/** 
+ * Multiplexor. If sel == 1 then out = b else out = a.
+ */
+
+// 21 Nand gates, 11 Nand gates, 4 Nand gates
+
+CHIP Mux {
+    IN a, b, sel;
+    OUT out;
+
+    PARTS:
+    // Put your code here.
+	//Not(in=a, out=c0);
+	//Not(in=b, out=c1);
+	//Not(in=sel, out=c2);
+	//And(a=a, b=b, out=d0);
+	//And(a=c0, b=b, out=d1);
+	//And(a=a, b=c1, out=d2);
+	//Or(a=d0, b=d1, out=e0);
+	//Or(a=d0, b=d2, out=e1);
+	//And(a=sel, b=e0, out=f0);
+	//And(a=c2, b=e1, out=f1);
+	//Or(a=f0, b=f1, out=out);
+
+	//Nand(a=a, b=a, out=c0);
+	//Nand(a=b, b=b, out=c1);
+	//Nand(a=c0, b=b, out=d0);
+	//Nand(a=a, b=b, out=d1);
+	//Nand(a=a, b=c1, out=d2);
+	//Nand(a=d0, b=d1, out=e0);
+	//Nand(a=d2, b=d1, out=e1);
+	//Nand(a=sel, b=sel, out=f);
+	//Nand(a=sel, b=e0, out=g0);
+	//Nand(a=f, b=e1, out=g1);
+	//Nand(a=g0, b=g1, out=out);
+
+	Nand(a=sel, b=sel, out=c);
+	Nand(a=a, b=c, out=d0);
+	Nand(a=sel, b=b, out=d1);
+	Nand(a=d0, b=d1, out=out);
+}

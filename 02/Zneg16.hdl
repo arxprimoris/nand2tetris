@@ -1,0 +1,32 @@
+// File name: projects/02/Zneg16.hdl
+
+/**
+ * 16-bit test for zero or negative value
+ */
+
+CHIP Zneg16 {
+    IN in[16];
+    OUT neg, zero; 
+
+    PARTS:
+	// compute zero ouput
+	Or(a=in[0], b=in[1], out=zr0);
+	Or(a=in[2], b=in[3], out=zr1);
+	Or(a=in[4], b=in[5], out=zr2);
+	Or(a=in[6], b=in[7], out=zr3);
+	Or(a=in[8], b=in[9], out=zr4);
+	Or(a=in[10], b=in[11], out=zr5);
+	Or(a=in[12], b=in[13], out=zr6);
+	Or(a=in[14], b=in[15], out=zr7);
+	Or(a=zr0, b=zr1, out=zr8);
+	Or(a=zr2, b=zr3, out=zr9);
+	Or(a=zr4, b=zr5, out=zr10);
+	Or(a=zr6, b=zr7, out=zr11);
+	Or(a=zr8, b=zr9, out=zr12);
+	Or(a=zr10, b=zr11, out=zr13);
+	Or(a=zr12, b=zr13, out=zr14);
+	Not(in=zr14, out=zero);	
+
+	// compute neg output
+	And(a=in[15], b=true, out=neg);
+}
