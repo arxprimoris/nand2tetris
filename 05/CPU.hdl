@@ -27,7 +27,7 @@
 CHIP CPU {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
-        instruction[16], // Instruction for execution
+        inst[16],		 // Instruction for execution
         reset;           // Signals whether to re-start the current program
                          // (reset == 1) or continue executing the current
                          // program (reset == 0).
@@ -37,6 +37,29 @@ CHIP CPU {
         addressM[15],    // RAM address (of M)
         pc[15];          // ROM address (of next instruction)
 
-     PARTS:
-    // Put your code here.
+    PARTS:
+	Not(in=inst[15], out=acBitN);						// Invert A/C instruction bit
+	Mux16(sel=acBitN, a=aluOut, b=inst, out=aOut0);		// Check for A/C instruction bit
+	Or(a=acBitN, b=inst[5], out=aLoad);					// ...and check for A as a destination
+	ARegister(load=aLoad, in=aOut0, out=aOut, out[0..14]=addressM);	// A register	
+	And(a=inst[4], b=inst[15], out=dLoad);				// Check for C inst and D dest
+	DRegister(load=dLoad, in=aluOut, out=dOut);			// D register
+	And(a=inst[15], b=inst[12], out=loadM);				// Check for using inM as input
+	Mux16(sel=loadM, a=aOut, b=inM, out=amOut);			// Select either A or M
+	And(a=inst[15], b=inst[3], out=writeM);				// Check for C inst and M dest
+	
+	Not(in=zrOut, out=notZero);							// ALU output not zero
+	Not(in=ngOut, out=notNeg);							// ALU output not negative
+	And(a=notZero, b=notNeg, out=greater);				// ALU output greater than zero
+	Or(a=zrOut, b=ngOut, out=lessOrEqual);				// ALU output negative or zero
+	And(a=inst[1], b=zrOut, out=jeq);					// Test for jump if equal
+	And(a=inst[2], b=ngOut, out=jlt);					// Test for jump if less than
+	And(a=inst[0], b=greater, out=jgt);					// Test for jump if greater than
+	Or(a=jgt, b=jeq, out=jge);							// Test for jump if less than or equal
+	Or(a=jlt, b=jgt, out=jne);							// Test for jump if not equal	
+	Or(a=jge, b=jne, out=jump);							// Test for ANY jump condition	
+	And(a=inst[15], b=jump, out=loadPC);				// Test for jump AND C instruction
+
+	PC(load=loadPC, inc=true, reset=reset, in=aOut, out[0..14]=pc);	// Program Counter
+	ALU(x=dOut, y=amOut, zx=inst[11], nx=inst[10], zy=inst[9], ny=inst[8], f=inst[7], no=inst[6], out=aluOut, out=outM, zr=zrOut, ng=ngOut);
 }

@@ -12,9 +12,8 @@
  * When reset is 1, the program's execution restarts. 
  * Thus, to start a program’s execution, reset must be pushed "up" (1)
  * and "down" (0). From this point onward the user is at the mercy of 
- * the software. In particular, depending on the program loaded into
- * the computer, the screen may show some output and the user may be 
- * expected to interact with the computer via the keyboard.
+ * the software. In particula:w
+  the computer via the keyboard.
  */
 
 CHIP Computer {
@@ -22,5 +21,7 @@ CHIP Computer {
     IN reset;
 
     PARTS:
-    // Put your code here.
+    ROM32K(address=pc, out=inst);
+    CPU(inM=inM, inst=inst, reset=reset, outM=outM, writeM=writeM, addressM=addressM, pc=pc);
+    Memory(load=writeM, address=addressM, in=outM, out=inM);
 }
